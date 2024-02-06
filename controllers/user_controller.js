@@ -31,11 +31,6 @@ export const login = async (req, res) => {
   res.status(StatusCodes.OK).header("authorization", "Barear " + token).send({message: "Logged in"});
 };
 
-// logout controller placeholder
-export const logout = async (req, res) => {
-  res.status(StatusCodes.OK)
-};
-
 // register controller placeholder
 export const register = async (req, res) => {
   const { name, email, password, phoneNumber } = req.body;
@@ -58,6 +53,5 @@ export const register = async (req, res) => {
 
 export default {
   login,
-  logout,
   register,
 };

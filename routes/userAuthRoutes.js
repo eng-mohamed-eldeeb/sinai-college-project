@@ -1,10 +1,10 @@
 import express from "express";
 const router = express.Router();
 
-import { login, logout, register, deleteAllUsers } from "../controllers/user_controller.js";
+import { login, register, deleteAllUsers } from "../controllers/user_controller.js";
 
 // create the user
 router.post("/", register).post("/login", login);
-router.delete("/logout", logout).delete("/deleteAllUsers", deleteAllUsers);
+router.delete("/deleteAllUsers", deleteAllUsers);
 
 export default router;
