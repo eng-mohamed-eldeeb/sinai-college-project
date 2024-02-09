@@ -19,6 +19,11 @@ const userSchema = new mongoose.Schema({
   },
   phoneNumber: String,
   group: String,
+  role: {
+    type: String,
+    enum: ["leader", "user", "admin"],
+    default: "leader",
+  },
   has_paid: {
     type: Boolean,
     default: false,
