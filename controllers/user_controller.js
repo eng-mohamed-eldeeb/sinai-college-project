@@ -28,7 +28,7 @@ export const login = async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "Invalid credentials"});
   }
   const token = user.createJWT();
-  res.status(StatusCodes.OK).header("authorization", "Barear " + token).send({message: "Logged in"});
+  res.status(StatusCodes.OK).send({message: "Logged in", token: "Barear " + token});
 };
 
 // register controller placeholder
