@@ -1,16 +1,20 @@
 import mongoose from "mongoose";
 
 const groupSchema = new mongoose.Schema({
-    name: {
+    subject_name: {
         type: String,
         required: [true, "Please provide a name"],
-        minlength: 3,
         maxlength: 100,
+    },
+    subject_group: {
+        type: String,
+        required: [true, "Please provide a group"],
+        maxlength: 40,
     },
     description: {
         type: String,
         required: [true, "Please provide a description"],
-        minlength: 3,
+        minlength: 20,
         maxlength: 1000,
     },
     members: [
@@ -23,17 +27,23 @@ const groupSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     },
-    request: {
-        type: string,
+    status: {
+        type: String,
         enum: ["pending", "accepted", "rejected"],
         default: "pending",
     },
     majore: {
         type: String,
         enum: ["dentist", "pharmacy", "physical therapy", "engineering", "Computer Science", "Business", "media", "other"],
-        default: "hold",
+        default: "dentist",
     },
-    });
+    star: {
+        type: Boolean,
+        default: false,
+    }
+});
+
+groupSchema.index({ subject_name: 1, subject_group: 1}, { unique: true });
 
 const Group = mongoose.model("Group", groupSchema);
 

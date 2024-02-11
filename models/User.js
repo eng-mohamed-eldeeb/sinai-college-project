@@ -42,18 +42,19 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.getName = function () {
-  return this.username;
+  return this.name;
 };
 
 userSchema.methods.createJWT = function () {
   return jwt.sign(
-    { userId: this._id, name: this.username },
+    { userId: this._id, name: this.name },
     process.env.JWT_SECRET,
     {
       expiresIn: "30d",
     }
   );
 };
+
 
 userSchema.methods.comparePasswords = async function (password) {
   return await bcrypt.compare(password, this.password);

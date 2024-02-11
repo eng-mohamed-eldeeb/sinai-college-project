@@ -8,13 +8,16 @@ import {
   getUserGroups,
   getGroups,
   createGroup,
-  updateGroup,
+  changeGroupStatuse,
+  deleteAllGroups,
+  joinGroup,
   deleteGroup,
+  starAGroup,
 } from "../controllers/group_controller.js";
 
 router.get("/user/groups", auth, getUserGroups).get("/all", getGroups);
-router.post("/", auth, createGroup);
-router.put("/", auth, updateGroup);
-router.delete("/", auth, deleteGroup);
+router.post("/", auth, createGroup).post("/group/:id/star", auth, starAGroup);
+router.put("/leader/group/:id", auth, changeGroupStatuse).put("/join/:id", auth, joinGroup)
+router.delete("/group/:id", auth, deleteGroup).delete("/all", deleteAllGroups);
 
 export default router;
