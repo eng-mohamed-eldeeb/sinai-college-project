@@ -160,7 +160,7 @@ export const getPendingGroups = async (req, res) => {
   try {
     const groups = await Group.find({ status: "pending" });
     const userId = req.user.userId;
-    if (user.findById(userId).role == "user") {
+    if (User.findById(userId).role == "user") {
       return res.status(403).send({ message: "You are not authorized to get pending groups" });
     }
     res.send({ message: "get pending groups", groups: groups.length });
