@@ -11,7 +11,12 @@ const groupSchema = new mongoose.Schema({
         required: [true, "Please provide a group"],
         maxlength: 40,
     },
-    // add the year
+    year: {
+        type: String,
+        required: [true, "Please provide a year"],
+        maxlength: 4,
+        default: "1",
+    },
     description: {
         type: String,
         required: [true, "Please provide a description"],

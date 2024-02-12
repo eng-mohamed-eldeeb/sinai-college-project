@@ -13,6 +13,7 @@ export const deleteAllGroups = async (req, res) => {
 
 export const getUserGroups = async (req, res) => {
   try {
+    
     const userId = req.user.userId;
     const user = await User.findById(userId);
     
@@ -77,9 +78,10 @@ export const createGroup = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
-    const { subject_name, subject_group, description, majore } = req.body;
+    const { subject_name, subject_group, description, majore, year } = req.body;
     const group = new Group({
       subject_name,
+      year,
       subject_group,
       description,
       majore,
@@ -92,6 +94,7 @@ export const createGroup = async (req, res) => {
       subject_group,
       description,
       majore,
+      year,
       requested_by: user.name
     } });
 
