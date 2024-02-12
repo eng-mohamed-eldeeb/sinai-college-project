@@ -3,7 +3,7 @@ import morgan from "morgan";
 import authRouter from "./routes/userAuthRoutes.js";
 import groupRouter from "./routes/groupRoutes.js";
 import leaderRouter from './routes/leaderRoutes.js'
-var cors = require('cors');
+import cors from 'cors';
 
 
 const app = express();
