@@ -16,7 +16,16 @@ export const getUserGroups = async (req, res) => {
     const userId = req.user.userId;
     const user = await User.findById(userId);
     
-    const groups = await Group.find({ members: userId});
+    const groups = await Group.find({ members: userId, status: "accepted"});
+    // sot the groups so that the groups in the user's stared_groups array come first
+    groups.sort((a, b) => {
+      if (user.stared_groups.includes(a._id)) {
+        return -1;
+      } else if (user.stared_groups.includes(b._id)) {
+        return 1;
+      }
+      return 0;
+    });
     
     if (groups.length === 0) {
       return res.status(404).send({ message: "User has no groups" });
@@ -30,10 +39,10 @@ export const getUserGroups = async (req, res) => {
 
 export const getGroups = async (req, res) => {
   try {
-        const groups = await Group.find();
+        const userId = req.user.userId;
+        const groups = await Group.find({ status: "accepted", members: { $ne: userId } });
         res.status(200).send(groups);
     } catch (err) {
-        console.error(err);
         res.status(500).send('Error retrieving groups');
     }
 };
@@ -44,9 +53,6 @@ export const joinGroup = async (req, res) => {
     const user = await User.findById(userId);
     const groupId = req.params.id;
     const group = await Group.findById(groupId); // Convert groupId to ObjectId
-    if (group.status === "pending" || group.status === "rejected") {
-      return res.status(400).send({ message: "Group is not accepting members" });
-    }
     if (!group) {
       return res.status(404).send({ message: "Group not found" });
     }
@@ -72,7 +78,6 @@ export const createGroup = async (req, res) => {
     const userId = req.user.userId;
     const user = await User.findById(userId);
     const { subject_name, subject_group, description, majore } = req.body;
-    
     const group = new Group({
       subject_name,
       subject_group,
@@ -80,9 +85,8 @@ export const createGroup = async (req, res) => {
       majore,
       requested_by: [userId]
     });
-
     await group.save();
-
+    
     res.send({ message: "create group requested", group: {
       subject_name,
       subject_group,
@@ -132,18 +136,21 @@ export const deleteGroup = async (req, res) => {
   }
 };
 
-
-export const starAGroup = async (req, res) => {
+export const changeStatuse = async (req, res) => {
   try {
     const groupId = req.params.id;
-    const group = await Group.findById(groupId);
-    group.star = !group.star;
-    await group.save();
+    const status = req.body.status;
+    const user = await User.findById(req.user.userId);
+    if (user.role == "user") {
+      return res.status(403).send({ message: "You are not authorized to change group status" });
+    }
+    const group = await Group.findByIdAndUpdate(groupId, { status }, { new: true });
+    
     if (!group) {
       return res.status(404).send({ message: "Group not found" });
     }
-    res.send({ message: "success"})
+    res.send({ message: "success" });
   } catch (error) {
-    res.status(500).send({ message: "Failed to star a group", error });
+    res.status(500).send({ message: "Failed to change group status", error });
   }
-};
+}

@@ -12,11 +12,11 @@ import {
   deleteAllGroups,
   joinGroup,
   deleteGroup,
-  starAGroup,
+  changeStatuse,
 } from "../controllers/group_controller.js";
 
-router.get("/user/groups", auth, getUserGroups).get("/all", getGroups);
-router.post("/", auth, createGroup).post("/group/:id/star", auth, starAGroup);
+router.get("/user/groups", auth, getUserGroups).get("/all", auth, getGroups);
+router.post("/", auth, createGroup).post("/group/:id", auth, changeStatuse);
 router.put("/leader/group/:id", auth, changeGroupStatuse).put("/join/:id", auth, joinGroup)
 router.delete("/group/:id", auth, deleteGroup).delete("/all", deleteAllGroups);
 

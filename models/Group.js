@@ -11,6 +11,7 @@ const groupSchema = new mongoose.Schema({
         required: [true, "Please provide a group"],
         maxlength: 40,
     },
+    // add the year
     description: {
         type: String,
         required: [true, "Please provide a description"],
@@ -36,11 +37,15 @@ const groupSchema = new mongoose.Schema({
         type: String,
         enum: ["dentist", "pharmacy", "physical therapy", "engineering", "Computer Science", "Business", "media", "other"],
         default: "dentist",
-    },
-    star: {
-        type: Boolean,
-        default: false,
     }
+});
+
+// add the user how requested to join the group
+groupSchema.pre("save", async function (next) {
+    const user = await this.model("User").findById(this.requested_by);
+    this.members.push(user._id);
+    await user.save();
+    next();
 });
 
 groupSchema.index({ subject_name: 1, subject_group: 1}, { unique: true });

@@ -33,6 +33,12 @@ const userSchema = new mongoose.Schema({
     enum: ["basic", "intertainment", "hold"],
     default: "hold",
   },
+  stared_groups: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {

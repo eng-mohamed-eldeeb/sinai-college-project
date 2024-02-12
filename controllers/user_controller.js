@@ -1,4 +1,5 @@
 import { StatusCodes } from "http-status-codes";
+import Group from "../models/Group.js";
 import User from "../models/User.js";
 
 
@@ -47,7 +48,6 @@ export const register = async (req, res) => {
     }
     try{
       const user = await User.create({...req.body});
-      console.log(user);
       // later I will send a confirmation email
       res.status(StatusCodes.CREATED).send({success: "User created", user});
     } catch (error) {
@@ -59,6 +59,28 @@ export const register = async (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
   }
 };
+
+// star a group
+export const starGroup = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    const groupId = req.params.id;
+    if (!await Group.findById(groupId)) {
+      return res.status(StatusCodes.NOT_FOUND).send({ message: "Group not found" });
+    }
+
+    if (user.stared_groups.includes(groupId)) {
+      user.stared_groups.pop(groupId);
+    } else {
+      user.stared_groups.push(groupId);
+    }
+    await user.save();
+    res.status(StatusCodes.OK).send({ message: "success", user });
+    } catch (error) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
+    }
+  }
 
 export default {
   login,
