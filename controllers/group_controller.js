@@ -14,13 +14,18 @@ export const deleteAllGroups = async (req, res) => {
 
 export const getUserGroups = async (req, res) => {
   try {
-    
     const userId = req.user.userId;
     const user = await User.findById(userId);
-    
-    const groups = await Group.find({ members: userId, status: "accepted"});
-    // sot the groups so that the groups in the user's stared_groups array come first
-    groups.sort((a, b) => {
+    const groups = await Group.find({ members: userId, status: "accepted" });
+
+    // Replace requested_by with user.name
+    const updatedGroups = groups.map(group => {
+      const requestedByUser = user.name;
+      return { ...group._doc, requested_by: requestedByUser };
+    });
+
+    // Sort the groups so that the groups in the user's stared_groups array come first
+    updatedGroups.sort((a, b) => {
       if (user.stared_groups.includes(a._id)) {
         return -1;
       } else if (user.stared_groups.includes(b._id)) {
@@ -28,12 +33,12 @@ export const getUserGroups = async (req, res) => {
       }
       return 0;
     });
-    
-    if (groups.length === 0) {
+
+    if (updatedGroups.length === 0) {
       return res.status(404).send({ message: "User has no groups" });
     }
-    
-    res.send({message: "get user groups", groups, number_of_liked_groups: user.stared_groups.length});
+
+    res.send({ message: "get user groups", groups: updatedGroups, number_of_liked_groups: user.stared_groups.length });
   } catch (error) {
     res.status(500).send({ message: "Failed to get user groups", error });
   }
@@ -53,6 +58,9 @@ export const joinGroup = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
     const groupId = req.params.id;
     const group = await Group.findById(groupId); // Convert groupId to ObjectId
     if (!group) {
@@ -218,3 +226,39 @@ export const filterGroups = async (req, res) => {
     res.status(500).send({ message: "Failed to filter groups", error });
   }
 }
+
+// leave group
+export const leaveGroup = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    const groupId = req.params.id;
+
+    // Check if the group exists
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).send({ message: "Group not found" });
+    }
+
+    // Check if the user is a member of the group
+    if (!group.members.includes(userId)) {
+      return res.status(400).send({ message: "You are not a member of this group" });
+    }
+
+    // Filter out the user from the group.members array
+    group.members = group.members.filter(memberId => memberId.toString() !== userId.toString());
+
+    // Save the changes to the database
+    await group.save();
+
+    res.send({ message: "Successfully left the group" });
+  } catch (error) {
+    res.status(500).send({ message: "Failed to leave group", error });
+  }
+};

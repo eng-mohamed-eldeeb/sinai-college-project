@@ -121,3 +121,13 @@ export default {
   login,
   register,
 };
+
+// reset password
+export const resetPassword = async (req, res) => {
+  try {
+    console.log(req.user);
+    res.status(StatusCodes.OK).send({ message: "Password reset" });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
+  }
+}
