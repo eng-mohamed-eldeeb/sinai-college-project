@@ -53,6 +53,7 @@ groupSchema.pre("save", async function (next) {
     next();
 });
 
+
 groupSchema.index({ subject_name: 1, subject_group: 1}, { unique: true });
 
 const Group = mongoose.model("Group", groupSchema);

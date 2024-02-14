@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema({
       ref: "Group",
     },
   ],
+  number_of_login: {
+    type: Number,
+    default: 0,
+  },
 });
 
 userSchema.pre("save", async function (next) {

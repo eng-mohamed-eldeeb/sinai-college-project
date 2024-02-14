@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import Group from "../models/Group.js";
+import {filterMajore} from "../helper/filterGroups.js"
 
 
 export const deleteAllGroups = async (req, res) => {
@@ -32,7 +33,7 @@ export const getUserGroups = async (req, res) => {
       return res.status(404).send({ message: "User has no groups" });
     }
     
-    res.send({message: "get user groups", groups, user: user.name});
+    res.send({message: "get user groups", groups, number_of_liked_groups: user.stared_groups.length});
   } catch (error) {
     res.status(500).send({ message: "Failed to get user groups", error });
   }
@@ -169,5 +170,51 @@ export const getPendingGroups = async (req, res) => {
     res.send({ message: "get pending groups", groups: groups.length });
   } catch (error) {
     res.status(500).send({ message: "Failed to get pending groups", error });
+  }
+}
+
+export const getAllGroupForAdmin = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    if (User.findById(userId).role == "user") {
+      return res.status(403).send({ message: "You are not authorized to get all groups" });
+    } else {
+      const groups = await Group.find();
+      res.send({ message: "get all groups", groups });
+    }
+  } catch (error) {
+    res.status(500).send({ message: "Failed to get all groups", error });
+  }
+}
+
+// groups filtering
+// get the year's by major
+export const filterGroupsByMajor = async (req, res) => {
+  try { 
+    res.send({ message: "get groups", grades: filterMajore(req.body.majore) });
+  } catch (error) {
+    res.status(500).send({ message: "Failed to filter groups", error });
+  }
+}
+
+// get the subject groups by major and year
+export const filterGroupsByYear = async (req, res) => {
+  try {
+    const groups = await Group.find({ majore: req.body.majore, year: req.body.year });
+    // get the subjects only
+    const subjects = groups.map(group => group.subject_name);
+    res.send({ message: "get groups", subjects });
+  } catch (error) {
+    res.status(500).send({ message: "Failed to filter groups", error });
+  }
+}
+
+// get filtered groups
+export const filterGroups = async (req, res) => {
+  try {
+    const groups = await Group.find(req.body);
+    res.send({ message: "get groups", groups });
+  } catch (error) {
+    res.status(500).send({ message: "Failed to filter groups", error });
   }
 }

@@ -13,7 +13,6 @@ export const deleteAllUsers = async (req, res) => {
 // login controller placeholder
 export const login = async (req, res) => {
   try {
-
     const { email, password } = req.body;
     if (!email || !password) {
       return res
@@ -26,13 +25,23 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "Invalid credentials"});
     }
+    
     const isMatch = await user.comparePasswords(password);
     if (!isMatch) {
-      return res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "Invalid credentials"});
+      return res.status(StatusCodes.UNAUTHORIZED).send({ ErrorMessage: "Invalid credentials" });
     }
+
+    if (user.number_of_login < 2) {
+      user.number_of_login += 1;
+      await user.save();
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).send({ ErrorMessage: "User already logged in" });
+    }
+
     const token = user.createJWT();
     res.status(StatusCodes.OK).send({message: "Logged in", token: "Barear " + token});
   } catch (error) {
+    console.log(error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
   }
 };
@@ -60,6 +69,23 @@ export const register = async (req, res) => {
   }
 };
 
+// logout
+export const logout = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    if (user.number_of_login === 2 || user.number_of_login === 1) {
+      user.number_of_login -= 1;
+      await user.save();
+      res.status(StatusCodes.OK).send({message: "Logged out"});
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "User already logged out"});
+    }
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
+  }
+}
+
 // star a group
 export const starGroup = async (req, res) => {
   try {
@@ -81,6 +107,20 @@ export const starGroup = async (req, res) => {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
     }
   }
+
+export const deleteUser = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).send({ message: "User not found" });
+    }
+    await User.findByIdAndDelete(userId);
+    res.status(StatusCodes.OK).send({ message: "User deleted" });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
+  }
+}
 
 export default {
   login,
