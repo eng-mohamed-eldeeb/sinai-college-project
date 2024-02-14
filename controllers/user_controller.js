@@ -25,11 +25,6 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "Invalid credentials"});
     }
-    
-    const isMatch = await user.comparePasswords(password);
-    if (!isMatch) {
-      return res.status(StatusCodes.UNAUTHORIZED).send({ ErrorMessage: "Invalid credentials" });
-    }
 
     if (user.number_of_login < 2) {
       user.number_of_login += 1;
@@ -58,7 +53,7 @@ export const register = async (req, res) => {
     try{
       const user = await User.create({...req.body});
       // later I will send a confirmation email
-      res.status(StatusCodes.CREATED).send({success: "User created", user});
+      res.status(StatusCodes.CREATED).send({success: "User created", user: { ...user._doc, password: "*****" }});
     } catch (error) {
       if (error.code === 11000) {
         return res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "Email already exists"});
@@ -93,7 +88,7 @@ export const starGroup = async (req, res) => {
     const user = await User.findById(userId);
     const groupId = req.params.id;
     if (!await Group.findById(groupId)) {
-      return res.status(StatusCodes.NOT_FOUND).send({ message: "Group not found" });
+      return res.status(StatusCodes.NOT_FOUND).send({ ErrorMessage: "Group not found" });
     }
 
     if (user.stared_groups.includes(groupId)) {
@@ -102,7 +97,7 @@ export const starGroup = async (req, res) => {
       user.stared_groups.push(groupId);
     }
     await user.save();
-    res.status(StatusCodes.OK).send({ message: "success", user });
+    res.status(StatusCodes.OK).send({ message: "success", user: { ...user._doc, password: "*****" }});
     } catch (error) {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
     }
@@ -113,7 +108,7 @@ export const deleteUser = async (req, res) => {
     const userId = req.user.userId;
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(StatusCodes.NOT_FOUND).send({ message: "User not found" });
+      return res.status(StatusCodes.NOT_FOUND).send({ ErrorMessage: "User not found" });
     }
     await User.findByIdAndDelete(userId);
     res.status(StatusCodes.OK).send({ message: "User deleted" });
