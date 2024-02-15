@@ -107,7 +107,7 @@ export const createGroup = async (req, res) => {
     } });
 
   } catch (error) {
-      res.status(500).send({ ErrorMessage: "Failed to create group", error });
+      res.status(500).send({ ErrorMessage: "This groups exists", error });
   }
 };
 
