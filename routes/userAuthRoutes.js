@@ -7,6 +7,6 @@ import { login, register, deleteAllUsers, starGroup, deleteUser, logout, resetPa
 // create the user
 router.post("/", register).post("/login", login).post("/groups/:id/starGroup", auth, starGroup);
 router.delete("/deleteAllUsers", deleteAllUsers).delete("/deleteUser", auth, deleteUser).delete("/logout", auth, logout);
-router.put("/resetPassword", resetPassword);
+router.put("/resetPassword", auth, resetPassword);
 
 export default router;

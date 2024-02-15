@@ -25,8 +25,11 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "Invalid credentials"});
     }
+    if (user.password !== password) {
+      return res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "Invalid credentials"});
+    }
 
-    if (user.number_of_login < 2) {
+    if (user.number_of_login == 0) {
       user.number_of_login += 1;
       await user.save();
     } else {
@@ -69,7 +72,7 @@ export const logout = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
-    if (user.number_of_login === 2 || user.number_of_login === 1) {
+    if (user.number_of_login === 1) {
       user.number_of_login -= 1;
       await user.save();
       res.status(StatusCodes.OK).send({message: "Logged out"});
@@ -125,7 +128,15 @@ export default {
 // reset password
 export const resetPassword = async (req, res) => {
   try {
-    console.log(req.user);
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).send({ ErrorMessage: "User not found" });
+    }
+    if (req.body.current_password !== user.password) {
+      return res.status(StatusCodes.BAD_REQUEST).send({ ErrorMessage: "Invalid password" });
+    }
+    user.password = req.body.new_password;
+    await user.save();
     res.status(StatusCodes.OK).send({ message: "Password reset" });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});

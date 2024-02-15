@@ -8,7 +8,7 @@ export const deleteAllGroups = async (req, res) => {
     await Group.deleteMany();
     res.send({ message: "All groups deleted" });
   } catch (error) {
-    res.status(500).send({ message: "Failed to delete groups", error });
+    res.status(500).send({ ErrorMessage: "Failed to delete groups", error });
   }
 }
 
@@ -35,12 +35,12 @@ export const getUserGroups = async (req, res) => {
     });
 
     if (updatedGroups.length === 0) {
-      return res.status(404).send({ message: "User has no groups" });
+      return res.status(404).send({ ErrorMessage: "User has no groups" });
     }
 
     res.send({ message: "get user groups", groups: updatedGroups, number_of_liked_groups: user.stared_groups.length });
   } catch (error) {
-    res.status(500).send({ message: "Failed to get user groups", error });
+    res.status(500).send({ ErrorMessage: "Failed to get user groups", error });
   }
 };
 
@@ -50,7 +50,7 @@ export const getGroups = async (req, res) => {
         const groups = await Group.find({ status: "accepted", members: { $ne: userId } });
         res.status(200).send(groups);
     } catch (err) {
-        res.status(500).send('Error retrieving groups');
+        res.status(500).send({ErrorMessage: 'Error retrieving groups'});
     }
 };
 
@@ -59,15 +59,15 @@ export const joinGroup = async (req, res) => {
     const userId = req.user.userId;
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).send({ message: "User not found" });
+      return res.status(404).send({ ErrorMessage: "User not found" });
     }
     const groupId = req.params.id;
     const group = await Group.findById(groupId); // Convert groupId to ObjectId
     if (!group) {
-      return res.status(404).send({ message: "Group not found" });
+      return res.status(404).send({ ErrorMessage: "Group not found" });
     }
     if (group.members.includes(userId)) {
-      return res.status(400).send({ message: "You are already a member of this group" });
+      return res.status(400).send({ ErrorMessage: "You are already a member of this group" });
     }
     group.members.push(userId);
     await group.save();
@@ -79,7 +79,7 @@ export const joinGroup = async (req, res) => {
       requested_by: user.name
     } });
   } catch (error) {
-    res.status(500).send({ message: "Failed to join group", error });
+    res.status(500).send({ ErrorMessage: "Failed to join group", error });
   }
 }
 
@@ -108,7 +108,7 @@ export const createGroup = async (req, res) => {
     } });
 
   } catch (error) {
-      res.status(500).send({ message: "Failed to create group", error });
+      res.status(500).send({ ErrorMessage: "Failed to create group", error });
   }
 };
 
@@ -123,7 +123,7 @@ export const changeGroupStatuse = async (req, res) => {
     await Group.findByIdAndUpdate(groupId, { status }, { new: true });
     res.send({ message: "group accepted" });
   } catch (error) {
-    res.status(500).send({ message: "Failed to change group status", error });
+    res.status(500).send({ ErrorMessage: "Failed to change group status", error });
   }
 };
 
@@ -138,13 +138,13 @@ export const deleteGroup = async (req, res) => {
         await Group.findByIdAndDelete(req.params.id);
         res.send({ message: "group deleted" });
       } catch (error) {
-        res.status(500).send({ message: "Failed to delete group", error });
+        res.status(500).send({ ErrorMessage: "Failed to delete group", error });
       }
     } else {
-      res.status(403).send({ message: "You are not authorized to delete this group" });
+      res.status(403).send({ ErrorMessage: "You are not authorized to delete this group" });
     }
   } catch (error) {
-    res.status(500).send({ message: "Failed to delete group", error });
+    res.status(500).send({ ErrorMessage: "Failed to delete group", error });
   }
 };
 
@@ -154,16 +154,16 @@ export const changeStatuse = async (req, res) => {
     const status = req.body.status;
     const user = await User.findById(req.user.userId);
     if (user.role == "user") {
-      return res.status(403).send({ message: "You are not authorized to change group status" });
+      return res.status(403).send({ ErrorMessage: "You are not authorized to change group status" });
     }
     const group = await Group.findByIdAndUpdate(groupId, { status }, { new: true });
     
     if (!group) {
-      return res.status(404).send({ message: "Group not found" });
+      return res.status(404).send({ ErrorMessage: "Group not found" });
     }
     res.send({ message: "success" });
   } catch (error) {
-    res.status(500).send({ message: "Failed to change group status", error });
+    res.status(500).send({ ErrorMessage: "Failed to change group status", error });
   }
 }
 
@@ -173,11 +173,11 @@ export const getPendingGroups = async (req, res) => {
     const groups = await Group.find({ status: "pending" });
     const userId = req.user.userId;
     if (User.findById(userId).role == "user") {
-      return res.status(403).send({ message: "You are not authorized to get pending groups" });
+      return res.status(403).send({ ErrorMessage: "You are not authorized to get pending groups" });
     }
     res.send({ message: "get pending groups", groups: groups.length });
   } catch (error) {
-    res.status(500).send({ message: "Failed to get pending groups", error });
+    res.status(500).send({ ErrorMessage: "Failed to get pending groups", error });
   }
 }
 
@@ -185,13 +185,13 @@ export const getAllGroupForAdmin = async (req, res) => {
   try {
     const userId = req.user.userId;
     if (User.findById(userId).role == "user") {
-      return res.status(403).send({ message: "You are not authorized to get all groups" });
+      return res.status(403).send({ ErrorMessage: "You are not authorized to get all groups" });
     } else {
       const groups = await Group.find();
       res.send({ message: "get all groups", groups });
     }
   } catch (error) {
-    res.status(500).send({ message: "Failed to get all groups", error });
+    res.status(500).send({ ErrorMessage: "Failed to get all groups", error });
   }
 }
 
@@ -201,7 +201,7 @@ export const filterGroupsByMajor = async (req, res) => {
   try { 
     res.send({ message: "get groups", grades: filterMajore(req.body.majore) });
   } catch (error) {
-    res.status(500).send({ message: "Failed to filter groups", error });
+    res.status(500).send({ ErrorMessage: "Failed to filter groups", error });
   }
 }
 
@@ -210,10 +210,11 @@ export const filterGroupsByYear = async (req, res) => {
   try {
     const groups = await Group.find({ majore: req.body.majore, year: req.body.year });
     // get the subjects only
-    const subjects = groups.map(group => group.subject_name);
+    const subjectsSet = new Set(groups.map(group => group.subject_name));
+    const subjects = Array.from(subjectsSet);
     res.send({ message: "get groups", subjects });
   } catch (error) {
-    res.status(500).send({ message: "Failed to filter groups", error });
+    res.status(500).send({ ErrorMessage: "Failed to filter groups", error });
   }
 }
 
@@ -223,7 +224,7 @@ export const filterGroups = async (req, res) => {
     const groups = await Group.find(req.body);
     res.send({ message: "get groups", groups });
   } catch (error) {
-    res.status(500).send({ message: "Failed to filter groups", error });
+    res.status(500).send({ ErrorMessage: "Failed to filter groups", error });
   }
 }
 
@@ -235,7 +236,7 @@ export const leaveGroup = async (req, res) => {
     // Check if the user exists
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).send({ message: "User not found" });
+      return res.status(404).send({ ErrorMessage: "User not found" });
     }
 
     const groupId = req.params.id;
@@ -243,12 +244,12 @@ export const leaveGroup = async (req, res) => {
     // Check if the group exists
     const group = await Group.findById(groupId);
     if (!group) {
-      return res.status(404).send({ message: "Group not found" });
+      return res.status(404).send({ ErrorMessage: "Group not found" });
     }
 
     // Check if the user is a member of the group
     if (!group.members.includes(userId)) {
-      return res.status(400).send({ message: "You are not a member of this group" });
+      return res.status(400).send({ ErrorMessage: "You are not a member of this group" });
     }
 
     // Filter out the user from the group.members array
@@ -259,6 +260,6 @@ export const leaveGroup = async (req, res) => {
 
     res.send({ message: "Successfully left the group" });
   } catch (error) {
-    res.status(500).send({ message: "Failed to leave group", error });
+    res.status(500).send({ ErrorMessage: "Failed to leave group", error });
   }
 };

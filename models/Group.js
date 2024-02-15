@@ -40,7 +40,7 @@ const groupSchema = new mongoose.Schema({
     },
     majore: {
         type: String,
-        enum: ["dentist", "pharmacy", "physical therapy", "engineering", "Computer Science", "Business", "media", "other"],
+        enum: ["dentist", "pharmacy", "physical therapy", "engineering", "computer science", "business", "media", "other"],
         default: "dentist",
     }
 });
