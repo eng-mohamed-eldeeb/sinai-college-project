@@ -6,5 +6,5 @@ export const filterMajore = function (majore) {
     // 5
     if (majore === "dentist" || majore === "pharmacy" || majore === "engineering") return 5;
     // 4
-    if (majore === "Computer Science" || majore === "Business" || majore === "media") return 4;
+    if (majore === "computer science" || majore === "business" || majore === "media") return 4;
 };
