@@ -186,11 +186,16 @@ export const getPendingGroups = async (req, res) => {
 export const getAllGroupForAdmin = async (req, res) => {
   try {
     const userId = req.user.userId;
+    const user = await User.findById(userId);
     if (User.findById(userId).role == "user") {
       return res.status(403).send({ ErrorMessage: "You are not authorized to get all groups" });
     } else {
       const groups = await Group.find();
-      res.send({ message: "get all groups", groups });
+      const updatedGroups = groups.map(group => {
+        const requestedByUser = user.name;
+        return { ...group._doc, requested_by: requestedByUser };
+      });
+      res.send({ message: "get all groups", updatedGroups });
     }
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to get all groups", error });
