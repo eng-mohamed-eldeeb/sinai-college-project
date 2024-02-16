@@ -87,6 +87,9 @@ export const createGroup = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
     const { subject_name, subject_group, description, majore, year } = req.body;
     const group = new Group({
       subject_name,
@@ -97,14 +100,7 @@ export const createGroup = async (req, res) => {
       requested_by: [userId]
     });
     await group.save();
-    res.send({ message: "create group requested", group: {
-      subject_name,
-      subject_group,
-      description,
-      majore,
-      year,
-      requested_by: user.name
-    } });
+    res.send({ message: "create group requested", group});
 
   } catch (error) {
       res.status(500).send({ ErrorMessage: "This groups exists", error });
@@ -116,7 +112,7 @@ export const changeGroupStatuse = async (req, res) => {
     const groupId = req.params.id;
     const status = req.body.status;
     if (status === "rejected") {
-      Group.findByIdAndDelete(groupId);
+      await Group.findByIdAndDelete(groupId);
       res.send({ message: "group rejected" });
     }
     if (!Group.findById(groupId)) {
