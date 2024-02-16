@@ -111,15 +111,16 @@ export const changeGroupStatuse = async (req, res) => {
   try {
     const groupId = req.params.id;
     const status = req.body.status;
+    if (!Group.findById(groupId)) {
+      res.status(404).send({ ErrorMessage: "Group not found" });
+    }
     if (status === "rejected") {
       await Group.findByIdAndDelete(groupId);
       res.send({ message: "group rejected" });
+    } else {
+      await Group.findByIdAndUpdate(groupId, { status }, { new: true });
+      res.send({ message: "group accepted" });
     }
-    if (!Group.findById(groupId)) {
-      return res.status(404).send({ ErrorMessage: "Group not found" });
-    }
-    await Group.findByIdAndUpdate(groupId, { status }, { new: true });
-    res.send({ message: "group accepted" });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to change group status", error });
   }

@@ -72,6 +72,9 @@ export const logout = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).send({ ErrorMessage: "User not found" });
+    }
     if (user.number_of_login === 1) {
       user.number_of_login -= 1;
       await user.save();
