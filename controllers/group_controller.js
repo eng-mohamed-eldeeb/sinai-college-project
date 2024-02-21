@@ -1,9 +1,6 @@
 import User from "../models/User.js";
 import Group from "../models/Group.js";
 import { filterMajore } from "../helper/filterGroups.js";
-import fs from "fs";
-import getVideoDuration from "get-video-duration";
-import ffmpeg from "fluent-ffmpeg";
 
 export const deleteAllGroups = async (req, res) => {
   try {
@@ -150,7 +147,7 @@ export const deleteGroup = async (req, res) => {
     const userId = req.user.userId;
     const user = await User.findById(userId);
 
-    if (group.requested_by.toHexString() == userId || user.role == "leader") {
+    if (group.requested_by.toHexString() == userId || user.role !== "user") {
       try {
         await Group.findByIdAndDelete(req.params.id);
         res.send({ message: "group deleted" });

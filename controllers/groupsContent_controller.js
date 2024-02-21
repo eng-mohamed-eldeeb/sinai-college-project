@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Route to upload a file
-export const uploadVideo = (req, res) => {
+export const uploadData = (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "failed to save file" });
@@ -72,7 +72,7 @@ export const uploadVideo = (req, res) => {
 };
 
 // Route to download a file
-export const downloadVideos = (req, res) => {
+export const downloadData = (req, res) => {
   try {
     const filename = req.params.filename;
     const { majore, subject_name, year, subject_group, file_type } = req.body;
@@ -109,7 +109,7 @@ export const downloadVideos = (req, res) => {
   }
 };
 
-export const getVidoesTitle = (req, res) => {
+export const getDataTitle = (req, res) => {
   try {
     const { majore, subject_name, year, subject_group, file_type } = req.body;
     const folderPath = path.join(

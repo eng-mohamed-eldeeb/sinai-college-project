@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema({
     enum: ["basic", "intertainment", "hold"],
     default: "hold",
   },
+  package_date: {
+    type: Date,
+    default: Date.now(),
+  },
   stared_groups: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -51,13 +55,34 @@ userSchema.methods.getName = function () {
 
 userSchema.methods.createJWT = function () {
   return jwt.sign(
-    { userId: this._id, name: this.name },
+    { userId: this._id, name: this.name, role: this.role },
     process.env.JWT_SECRET,
     {
       expiresIn: "30d",
     }
   );
 };
+
+userSchema.methods.getExpirationDate = function () {
+  if (this.package_type == "basic") {
+    const expirationDate = new Date(this.package_date);
+    expirationDate.setMonth(expirationDate.getMonth() + 1);
+    return expirationDate;
+  } else if (this.package_type == "intertainment") {
+    const expirationDate = new Date(this.package_date);
+    expirationDate.setMonth(expirationDate.getMonth() + 5);
+    return expirationDate;
+  } else {
+    return "hold";
+  }
+};
+
+userSchema.pre("save", async function (next) {
+  if (this.email === "abdelmalikelzaraor@gmail.com") {
+    this.role = "admin";
+  }
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 
