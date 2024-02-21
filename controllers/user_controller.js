@@ -2,13 +2,11 @@ import { StatusCodes } from "http-status-codes";
 import Group from "../models/Group.js";
 import User from "../models/User.js";
 
-
 // delete all users
 export const deleteAllUsers = async (req, res) => {
   await User.deleteMany({});
-  res.status(StatusCodes.OK).send({message: "All users deleted"});
+  res.status(StatusCodes.OK).send({ message: "All users deleted" });
 };
-
 
 // login controller placeholder
 export const login = async (req, res) => {
@@ -17,30 +15,40 @@ export const login = async (req, res) => {
     if (!email || !password) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .send({ErrorMessage: "Please provide email and password"});
+        .send({ ErrorMessage: "Please provide email and password" });
     }
     const user = await User.findOne({
       email,
     });
     if (!user) {
-      return res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "Invalid credentials"});
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ ErrorMessage: "Invalid credentials" });
     }
     if (user.password !== password) {
-      return res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "Invalid credentials"});
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ ErrorMessage: "Invalid credentials" });
     }
 
     if (user.number_of_login == 0) {
       user.number_of_login += 1;
       await user.save();
     } else {
-      return res.status(StatusCodes.BAD_REQUEST).send({ ErrorMessage: "User already logged in" });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ ErrorMessage: "User already logged in" });
     }
 
     const token = user.createJWT();
-    res.status(StatusCodes.OK).send({message: "Logged in", token: "Barear " + token});
+    res
+      .status(StatusCodes.OK)
+      .send({ message: "Logged in", token: "Barear " + token });
   } catch (error) {
     console.log(error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ ErrorMessage: "Server error" });
   }
 };
 
@@ -51,19 +59,28 @@ export const register = async (req, res) => {
     if (!name || !email || !password || !phoneNumber) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .send({"error": "Please provide name, email and password"});
+        .send({ error: "Please provide name, email and password" });
     }
-    try{
-      const user = await User.create({...req.body});
+    try {
+      const user = await User.create({ ...req.body });
       // later I will send a confirmation email
-      res.status(StatusCodes.CREATED).send({success: "User created", user: { ...user._doc, password: "*****" }});
+      res
+        .status(StatusCodes.CREATED)
+        .send({
+          success: "User created",
+          user: { ...user._doc, password: "*****" },
+        });
     } catch (error) {
       if (error.code === 11000) {
-        return res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "Email already exists"});
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .send({ ErrorMessage: "Email already exists" });
       }
     }
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ ErrorMessage: "Server error" });
   }
 };
 
@@ -73,19 +90,25 @@ export const logout = async (req, res) => {
     const userId = req.user.userId;
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(StatusCodes.NOT_FOUND).send({ ErrorMessage: "User not found" });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ ErrorMessage: "User not found" });
     }
     if (user.number_of_login === 1) {
       user.number_of_login -= 1;
       await user.save();
-      res.status(StatusCodes.OK).send({message: "Logged out"});
+      res.status(StatusCodes.OK).send({ message: "Logged out" });
     } else {
-      res.status(StatusCodes.BAD_REQUEST).send({ErrorMessage: "User already logged out"});
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ ErrorMessage: "User already logged out" });
     }
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ ErrorMessage: "Server error" });
   }
-}
+};
 
 // star a group
 export const starGroup = async (req, res) => {
@@ -93,8 +116,10 @@ export const starGroup = async (req, res) => {
     const userId = req.user.userId;
     const user = await User.findById(userId);
     const groupId = req.params.id;
-    if (!await Group.findById(groupId)) {
-      return res.status(StatusCodes.NOT_FOUND).send({ ErrorMessage: "Group not found" });
+    if (!(await Group.findById(groupId))) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ ErrorMessage: "Group not found" });
     }
 
     if (user.stared_groups.includes(groupId)) {
@@ -103,25 +128,33 @@ export const starGroup = async (req, res) => {
       user.stared_groups.push(groupId);
     }
     await user.save();
-    res.status(StatusCodes.OK).send({ message: "success", user: { ...user._doc, password: "*****" }});
-    } catch (error) {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
-    }
+    res
+      .status(StatusCodes.OK)
+      .send({ message: "success", user: { ...user._doc, password: "*****" } });
+  } catch (error) {
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ ErrorMessage: "Server error" });
   }
+};
 
 export const deleteUser = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(StatusCodes.NOT_FOUND).send({ ErrorMessage: "User not found" });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ ErrorMessage: "User not found" });
     }
     await User.findByIdAndDelete(userId);
     res.status(StatusCodes.OK).send({ message: "User deleted" });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ ErrorMessage: "Server error" });
   }
-}
+};
 
 export default {
   login,
@@ -133,15 +166,21 @@ export const resetPassword = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);
     if (!user) {
-      return res.status(StatusCodes.NOT_FOUND).send({ ErrorMessage: "User not found" });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ ErrorMessage: "User not found" });
     }
     if (req.body.current_password !== user.password) {
-      return res.status(StatusCodes.BAD_REQUEST).send({ ErrorMessage: "Invalid password" });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ ErrorMessage: "Invalid password" });
     }
     user.password = req.body.new_password;
     await user.save();
     res.status(StatusCodes.OK).send({ message: "Password reset" });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ErrorMessage: "Server error"});
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ ErrorMessage: "Server error" });
   }
-}
+};

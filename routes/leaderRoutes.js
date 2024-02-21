@@ -3,9 +3,7 @@ import express from "express";
 
 const router = express.Router();
 
-import {
-  getCreateGroupRequests,
-} from "../controllers/leader_controller.js";
+import { getCreateGroupRequests } from "../controllers/leader_controller.js";
 
 router.get("/leaders/", auth, getCreateGroupRequests);
 

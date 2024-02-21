@@ -1,10 +1,9 @@
 import User from "../models/User.js";
 import Group from "../models/Group.js";
-import {filterMajore} from "../helper/filterGroups.js"
+import { filterMajore } from "../helper/filterGroups.js";
 import fs from "fs";
-import getVideoDuration from 'get-video-duration';
-import ffmpeg from 'fluent-ffmpeg';
-
+import getVideoDuration from "get-video-duration";
+import ffmpeg from "fluent-ffmpeg";
 
 export const deleteAllGroups = async (req, res) => {
   try {
@@ -13,7 +12,7 @@ export const deleteAllGroups = async (req, res) => {
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to delete groups", error });
   }
-}
+};
 
 export const getUserGroups = async (req, res) => {
   try {
@@ -22,11 +21,13 @@ export const getUserGroups = async (req, res) => {
     const groups = await Group.find({ members: userId, status: "accepted" });
 
     // Replace requested_by with user.name
-    const updatedGroups = await Promise.all(groups.map(async group => {
-      const user = await User.findById(group.requested_by.toHexString());
-      const requestedByUser = user.name;
-      return { ...group._doc, requested_by: requestedByUser };
-    }));
+    const updatedGroups = await Promise.all(
+      groups.map(async (group) => {
+        const user = await User.findById(group.requested_by.toHexString());
+        const requestedByUser = user.name;
+        return { ...group._doc, requested_by: requestedByUser };
+      })
+    );
 
     // Sort the groups so that the groups in the user's stared_groups array come first
     updatedGroups.sort((a, b) => {
@@ -42,7 +43,11 @@ export const getUserGroups = async (req, res) => {
       return res.status(404).send({ ErrorMessage: "User has no groups" });
     }
 
-    res.send({ message: "get user groups", groups: updatedGroups, number_of_liked_groups: user.stared_groups.length });
+    res.send({
+      message: "get user groups",
+      groups: updatedGroups,
+      number_of_liked_groups: user.stared_groups.length,
+    });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to get user groups", error });
   }
@@ -50,12 +55,15 @@ export const getUserGroups = async (req, res) => {
 
 export const getGroups = async (req, res) => {
   try {
-        const userId = req.user.userId;
-        const groups = await Group.find({ status: "accepted", members: { $ne: userId } });
-        res.status(200).send(groups);
-    } catch (err) {
-        res.status(500).send({ErrorMessage: 'Error retrieving groups'});
-    }
+    const userId = req.user.userId;
+    const groups = await Group.find({
+      status: "accepted",
+      members: { $ne: userId },
+    });
+    res.status(200).send(groups);
+  } catch (err) {
+    res.status(500).send({ ErrorMessage: "Error retrieving groups" });
+  }
 };
 
 export const joinGroup = async (req, res) => {
@@ -71,21 +79,26 @@ export const joinGroup = async (req, res) => {
       return res.status(404).send({ ErrorMessage: "Group not found" });
     }
     if (group.members.includes(userId)) {
-      return res.status(400).send({ ErrorMessage: "You are already a member of this group" });
+      return res
+        .status(400)
+        .send({ ErrorMessage: "You are already a member of this group" });
     }
     group.members.push(userId);
     await group.save();
-    res.send({ message: "join group requested", group: {
-      subject_name: group.subject_name,
-      subject_group: group.subject_group,
-      description: group.description,
-      majore: group.majore,
-      requested_by: user.name
-    } });
+    res.send({
+      message: "join group requested",
+      group: {
+        subject_name: group.subject_name,
+        subject_group: group.subject_group,
+        description: group.description,
+        majore: group.majore,
+        requested_by: user.name,
+      },
+    });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to join group", error });
   }
-}
+};
 
 export const createGroup = async (req, res) => {
   try {
@@ -101,13 +114,12 @@ export const createGroup = async (req, res) => {
       subject_group,
       description,
       majore,
-      requested_by: [userId]
+      requested_by: [userId],
     });
     await group.save();
-    res.send({ message: "create group requested", group});
-
+    res.send({ message: "create group requested", group });
   } catch (error) {
-      res.status(500).send({ ErrorMessage: "This groups exists", error });
+    res.status(500).send({ ErrorMessage: "This groups exists", error });
   }
 };
 
@@ -126,16 +138,18 @@ export const changeGroupStatuse = async (req, res) => {
       res.send({ message: "group accepted" });
     }
   } catch (error) {
-    res.status(500).send({ ErrorMessage: "Failed to change group status", error });
+    res
+      .status(500)
+      .send({ ErrorMessage: "Failed to change group status", error });
   }
 };
 
 export const deleteGroup = async (req, res) => {
-  try{
+  try {
     const group = await Group.findById(req.params.id);
     const userId = req.user.userId;
     const user = await User.findById(userId);
-  
+
     if (group.requested_by.toHexString() == userId || user.role == "leader") {
       try {
         await Group.findByIdAndDelete(req.params.id);
@@ -144,7 +158,9 @@ export const deleteGroup = async (req, res) => {
         res.status(500).send({ ErrorMessage: "Failed to delete group", error });
       }
     } else {
-      res.status(403).send({ ErrorMessage: "You are not authorized to delete this group" });
+      res
+        .status(403)
+        .send({ ErrorMessage: "You are not authorized to delete this group" });
     }
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to delete group", error });
@@ -157,18 +173,26 @@ export const changeStatuse = async (req, res) => {
     const status = req.body.status;
     const user = await User.findById(req.user.userId);
     if (user.role == "user") {
-      return res.status(403).send({ ErrorMessage: "You are not authorized to change group status" });
+      return res.status(403).send({
+        ErrorMessage: "You are not authorized to change group status",
+      });
     }
-    const group = await Group.findByIdAndUpdate(groupId, { status }, { new: true });
-    
+    const group = await Group.findByIdAndUpdate(
+      groupId,
+      { status },
+      { new: true }
+    );
+
     if (!group) {
       return res.status(404).send({ ErrorMessage: "Group not found" });
     }
     res.send({ message: "success" });
   } catch (error) {
-    res.status(500).send({ ErrorMessage: "Failed to change group status", error });
+    res
+      .status(500)
+      .send({ ErrorMessage: "Failed to change group status", error });
   }
-}
+};
 
 // retuen the number of pending groups
 export const getPendingGroups = async (req, res) => {
@@ -176,77 +200,90 @@ export const getPendingGroups = async (req, res) => {
     const groups = await Group.find({ status: "pending" });
     const userId = req.user.userId;
     if (User.findById(userId).role == "user") {
-      return res.status(403).send({ ErrorMessage: "You are not authorized to get pending groups" });
+      return res
+        .status(403)
+        .send({ ErrorMessage: "You are not authorized to get pending groups" });
     }
     res.send({ message: "get pending groups", groups: groups.length });
   } catch (error) {
-    res.status(500).send({ ErrorMessage: "Failed to get pending groups", error });
+    res
+      .status(500)
+      .send({ ErrorMessage: "Failed to get pending groups", error });
   }
-}
+};
 
 export const getAllGroupForAdmin = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
     if (User.findById(userId).role == "user") {
-      return res.status(403).send({ ErrorMessage: "You are not authorized to get all groups" });
+      return res
+        .status(403)
+        .send({ ErrorMessage: "You are not authorized to get all groups" });
     } else {
       const groups = await Group.find();
-      const updatedGroups = await Promise.all(groups.map(async group => {
-        const user = await User.findById(group.requested_by.toHexString());
-        const requestedByUser = user.name;
-        return { ...group._doc, requested_by: requestedByUser };
-      }));
+      const updatedGroups = await Promise.all(
+        groups.map(async (group) => {
+          const user = await User.findById(group.requested_by.toHexString());
+          const requestedByUser = user.name;
+          return { ...group._doc, requested_by: requestedByUser };
+        })
+      );
       res.send({ message: "get all groups", updatedGroups });
     }
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to get all groups", error });
   }
-}
+};
 
 // groups filtering
 // get the year's by major
 export const filterGroupsByMajor = async (req, res) => {
-  try { 
+  try {
     res.send({ message: "get groups", grades: filterMajore(req.body.majore) });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to filter groups", error });
   }
-}
+};
 
 // get the subject groups by major and year
 export const filterGroupsByYear = async (req, res) => {
   try {
-    const groups = await Group.find({ majore: req.body.majore, year: req.body.year });
+    const groups = await Group.find({
+      majore: req.body.majore,
+      year: req.body.year,
+    });
     // get the subjects only
-    const subjectsSet = new Set(groups.map(group => group.subject_name));
+    const subjectsSet = new Set(groups.map((group) => group.subject_name));
     const subjects = Array.from(subjectsSet);
     res.send({ message: "get groups", subjects });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to filter groups", error });
   }
-}
+};
 
 // get filtered groups
 export const filterGroups = async (req, res) => {
   try {
     const groups = await Group.find(req.body);
-    const updatedGroups = await Promise.all(groups.map(async group => {
-      const user = await User.findById(group.requested_by.toHexString());
-      const requestedByUser = user.name;
-      return { ...group._doc, requested_by: requestedByUser };
-    }));
+    const updatedGroups = await Promise.all(
+      groups.map(async (group) => {
+        const user = await User.findById(group.requested_by.toHexString());
+        const requestedByUser = user.name;
+        return { ...group._doc, requested_by: requestedByUser };
+      })
+    );
     res.send({ message: "get groups", updatedGroups });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to filter groups", error });
   }
-}
+};
 
 // leave group
 export const leaveGroup = async (req, res) => {
   try {
     const userId = req.user.userId;
-    
+
     // Check if the user exists
     const user = await User.findById(userId);
     if (!user) {
@@ -263,11 +300,15 @@ export const leaveGroup = async (req, res) => {
 
     // Check if the user is a member of the group
     if (!group.members.includes(userId)) {
-      return res.status(400).send({ ErrorMessage: "You are not a member of this group" });
+      return res
+        .status(400)
+        .send({ ErrorMessage: "You are not a member of this group" });
     }
 
     // Filter out the user from the group.members array
-    group.members = group.members.filter(memberId => memberId.toString() !== userId.toString());
+    group.members = group.members.filter(
+      (memberId) => memberId.toString() !== userId.toString()
+    );
 
     // Save the changes to the database
     await group.save();
