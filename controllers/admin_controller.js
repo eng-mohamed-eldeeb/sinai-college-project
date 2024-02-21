@@ -10,8 +10,8 @@ export const getUsers = async (req, res) => {
         .send({ ErrorMessage: "You are not authorized to delete user" });
     }
     const users = await User.find().sort({
-      package_type: 1,
       expirationDate: 1,
+      package_type: 1,
     });
 
     const usersWithExpirationDate = users.map((user) => {
@@ -35,7 +35,10 @@ export const searchUserByName = async (req, res) => {
         .send({ ErrorMessage: "You are not authorized to delete user" });
     }
     const name = req.body.name;
-    const users = await User.find({ name: { $regex: name, $options: "i" } });
+    const users = await User.find({
+      name: { $regex: name, $options: "i" },
+      _id: { $ne: req.user.userId },
+    });
     res.status(200).send(users);
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to search for user", error });
