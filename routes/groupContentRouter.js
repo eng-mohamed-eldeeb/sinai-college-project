@@ -9,10 +9,11 @@ import { upload } from "../helper/multer.js";
 import express from "express";
 const router = express.Router();
 
-router.get("/thumbnail", auth, getTumbnail);
+router
+  .get("/download/:filename", auth, downloadData)
+  .get("/thumbnail", auth, getTumbnail);
 router
   .post("/upload", auth, upload.single("file"), uploadData)
-  .post("/download/:filename", auth, downloadData)
   .post("/data", auth, getDataTitle);
 
 export default router;
