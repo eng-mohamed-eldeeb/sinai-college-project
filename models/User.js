@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
   },
   package_type: {
     type: String,
-    enum: ["basic", "intertainment", "hold"],
+    enum: ["month", "semester", "hold"],
     default: "hold",
   },
   package_date: {
@@ -64,11 +64,11 @@ userSchema.methods.createJWT = function () {
 };
 
 userSchema.methods.getExpirationDate = function () {
-  if (this.package_type == "basic") {
+  if (this.package_type == "month") {
     const expirationDate = new Date(this.package_date);
     expirationDate.setMonth(expirationDate.getMonth() + 1);
     return expirationDate;
-  } else if (this.package_type == "intertainment") {
+  } else if (this.package_type == "semester") {
     const expirationDate = new Date(this.package_date);
     expirationDate.setMonth(expirationDate.getMonth() + 5);
     return expirationDate;
