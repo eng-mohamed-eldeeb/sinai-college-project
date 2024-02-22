@@ -15,5 +15,8 @@ router
 router
   .post("/upload", auth, upload.single("file"), uploadData)
   .post("/data", auth, getDataTitle);
+router
+  .patch("/download/:filename", auth, downloadData)
+  .patch("/data", auth, getDataTitle);
 
 export default router;
