@@ -30,8 +30,7 @@ export const login = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .send({ ErrorMessage: "Invalid credentials" });
     }
-
-    if (user.number_of_login == 0 && user.role !== "admin") {
+    if (user.number_of_login == 0 || user.role === "admin") {
       user.number_of_login += 1;
       await user.save();
     } else {
@@ -92,11 +91,7 @@ export const logout = async (req, res) => {
         .status(StatusCodes.NOT_FOUND)
         .send({ ErrorMessage: "User not found" });
     }
-    if (user.role === "admin") {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .send({ ErrorMessage: "Admin cannot logout" });
-    } else if (user.number_of_login === 1) {
+    if (user.number_of_login === 1) {
       user.number_of_login -= 1;
       await user.save();
       res.status(StatusCodes.OK).send({ message: "Logged out" });
