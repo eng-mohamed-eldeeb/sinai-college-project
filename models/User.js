@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ["leader", "user", "admin"],
-    default: "leader",
+    default: "user",
   },
   has_paid: {
     type: Boolean,
@@ -55,7 +55,14 @@ userSchema.methods.getName = function () {
 
 userSchema.methods.createJWT = function () {
   return jwt.sign(
-    { userId: this._id, name: this.name, role: this.role },
+    {
+      userId: this._id,
+      name: this.name,
+      role: this.role,
+      email: this.email,
+      has_paid: this.has_paid,
+      expirationDate: this.getExpirationDate(),
+    },
     process.env.JWT_SECRET,
     {
       expiresIn: "30d",

@@ -9,7 +9,7 @@ export const getUsers = async (req, res) => {
         .status(403)
         .send({ ErrorMessage: "You are not authorized to delete user" });
     }
-    const users = await User.find().sort({
+    const users = await User.find({ _id: { $ne: req.user.userId } }).sort({
       expirationDate: 1,
       package_type: 1,
     });
@@ -61,6 +61,9 @@ export const updateUserRole = async (req, res) => {
       { role },
       { new: true }
     );
+    if (!updateduser) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
     if (!updateduser) {
       return res.status(404).send({ ErrorMessage: "User not found" });
     }
