@@ -4,6 +4,7 @@ import {
   downloadData,
   getDataTitle,
   getTumbnail,
+  deleteData,
 } from "../controllers/groupsContent_controller.js";
 import { upload } from "../helper/multer.js";
 import express from "express";
@@ -18,5 +19,6 @@ router
 router
   .patch("/download/:filename", auth, downloadData)
   .patch("/data", auth, getDataTitle);
+router.delete("/delete/:filename", auth, deleteData);
 
 export default router;

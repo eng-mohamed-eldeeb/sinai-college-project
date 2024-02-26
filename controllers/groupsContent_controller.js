@@ -6,6 +6,38 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Route to delete a file
+export const deleteData = (req, res) => {
+  try {
+    console.log(req.body);
+    const { majore, subject_name, year, subject_group, file_type } = req.body;
+    const filename = req.params.filename;
+    const filepath = path.join(
+      __dirname,
+      "../uploads",
+      majore,
+      year,
+      subject_name,
+      subject_group,
+      file_type,
+      filename
+    );
+    fs.rmdir(filepath, { recursive: true }, (err) => {
+      if (err) {
+        console.error(err);
+        return res
+          .status(500)
+          .json({ error: "An error occurred while deleting the folder.", err });
+      }
+      res.json({ message: "Folder deleted successfully." });
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while deleting the file.", error });
+  }
+};
+
 // Route to upload a file
 export const uploadData = (req, res) => {
   try {
