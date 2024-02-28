@@ -181,3 +181,21 @@ export const resetPassword = async (req, res) => {
       .send({ ErrorMessage: "Server error" });
   }
 };
+
+// get role and expiration date
+export const getRoleAndExpiration = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ ErrorMessage: "User not found" });
+    }
+    res.status(StatusCodes.OK).send({
+      message: "success",
+      role: user.role,
+      package_type: user.package_type,
+      expiration_date: user.getExpirationDate(),
+    });
+  } catch {}
+};
