@@ -16,7 +16,7 @@ export const getUserGroups = async (req, res) => {
     const userId = req.user.userId;
     const user = await User.findById(userId);
     const groups = await Group.find({ members: userId, status: "accepted" });
-
+    console.log(groups);
     // Replace requested_by with user.name
     groups.sort((a, b) => {
       if (user.stared_groups.includes(a._id)) {
@@ -27,13 +27,13 @@ export const getUserGroups = async (req, res) => {
       return 0;
     });
 
-    if (updatedGroups.length === 0) {
+    if (groups.length === 0) {
       return res.status(404).send({ ErrorMessage: "User has no groups" });
     }
 
     res.send({
       message: "get user groups",
-      groups: updatedGroups,
+      groups,
       number_of_liked_groups: user.stared_groups.length,
     });
   } catch (error) {
