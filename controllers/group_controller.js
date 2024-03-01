@@ -265,20 +265,16 @@ export const filterGroups = async (req, res) => {
     console.log(req.body);
     const groups = await Group.find(req.body);
     console.log(groups);
-    try {
-      const updatedGroups = await Promise.all(
-        groups.map(async (group) => {
-          const user = await User.findById(group.requested_by.toHexString());
-          if (!user) {
-            return group;
-          }
-          const requestedByUser = user.name;
-          return { ...group._doc, requested_by: requestedByUser };
-        })
-      );
-    } catch (error) {
-      console.log(error);
-    }
+    const updatedGroups = await Promise.all(
+      groups.map(async (group) => {
+        const user = await User.findById(group.requested_by.toHexString());
+        if (!user) {
+          return group;
+        }
+        const requestedByUser = user.name;
+        return { ...group._doc, requested_by: requestedByUser };
+      })
+    );
     const user = await User.findById(req.user.userId);
     console.log(user);
     res.send({ message: "get groups", groups });
