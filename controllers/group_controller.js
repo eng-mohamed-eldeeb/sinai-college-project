@@ -1,7 +1,6 @@
 import User from "../models/User.js";
 import Group from "../models/Group.js";
 import { filterMajore } from "../helper/filterGroups.js";
-import { updateRequestedBy } from "../helper/updateRequestedBy.js";
 
 export const deleteAllGroups = async (req, res) => {
   try {
@@ -19,10 +18,7 @@ export const getUserGroups = async (req, res) => {
     const groups = await Group.find({ members: userId, status: "accepted" });
 
     // Replace requested_by with user.name
-    const updatedGroups = updateRequestedBy(groups);
-
-    // Sort the groups so that the groups in the user's stared_groups array come first
-    updatedGroups.sort((a, b) => {
+    groups.sort((a, b) => {
       if (user.stared_groups.includes(a._id)) {
         return -1;
       } else if (user.stared_groups.includes(b._id)) {
@@ -259,9 +255,7 @@ export const filterGroups = async (req, res) => {
   try {
     console.log(req.body);
     const groups = await Group.find(req.body);
-    const updatedGroups = await updateRequestedBy(groups);
-    console.log(updatedGroups);
-    res.send({ message: "get groups", updatedGroups });
+    res.send({ message: "get groups", groups });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to filter groups" });
   }
