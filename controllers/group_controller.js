@@ -15,8 +15,10 @@ export const getUserGroups = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
     const groups = await Group.find({ members: userId, status: "accepted" });
-    console.log(groups);
     // Replace requested_by with user.name
     groups.sort((a, b) => {
       if (user.stared_groups.includes(a._id)) {
@@ -44,6 +46,15 @@ export const getUserGroups = async (req, res) => {
 export const getGroups = async (req, res) => {
   try {
     const userId = req.user.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
+    if (user.role === "user") {
+      return res
+        .status(403)
+        .send({ ErrorMessage: "You are not authorized to get groups" });
+    }
     const groups = await Group.find({
       status: "accepted",
       members: { $ne: userId },
@@ -114,6 +125,16 @@ export const createGroup = async (req, res) => {
 export const changeGroupStatuse = async (req, res) => {
   try {
     const groupId = req.params.id;
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
+    if (user.role === "user") {
+      return res
+        .status(403)
+        .send({ ErrorMessage: "You are not authorized to get groups" });
+    }
     const status = req.body.status;
     if (!Group.findById(groupId)) {
       res.status(404).send({ ErrorMessage: "Group not found" });
@@ -137,7 +158,9 @@ export const deleteGroup = async (req, res) => {
     const group = await Group.findById(req.params.id);
     const userId = req.user.userId;
     const user = await User.findById(userId);
-
+    if (!user) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
     if (group.requested_by.toHexString() == userId || user.role !== "user") {
       try {
         await Group.findByIdAndDelete(req.params.id);
@@ -160,6 +183,9 @@ export const changeStatuse = async (req, res) => {
     const groupId = req.params.id;
     const status = req.body.status;
     const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
     if (user.role == "user") {
       return res.status(403).send({
         ErrorMessage: "You are not authorized to change group status",
@@ -187,7 +213,11 @@ export const getPendingGroups = async (req, res) => {
   try {
     const groups = await Group.find({ status: "pending" });
     const userId = req.user.userId;
-    if (User.findById(userId).role == "user") {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
+    if (user.role == "user") {
       return res
         .status(403)
         .send({ ErrorMessage: "You are not authorized to get pending groups" });
@@ -204,7 +234,10 @@ export const getAllGroupForAdmin = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
-    if (User.findById(userId).role == "user") {
+    if (!user) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
+    if (user.role == "user") {
       return res
         .status(403)
         .send({ ErrorMessage: "You are not authorized to get all groups" });
@@ -228,6 +261,10 @@ export const getAllGroupForAdmin = async (req, res) => {
 // get the year's by major
 export const filterGroupsByMajor = async (req, res) => {
   try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
     res.send({ message: "get groups", grades: filterMajore(req.body.majore) });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to filter groups", error });
@@ -253,7 +290,6 @@ export const filterGroupsByYear = async (req, res) => {
 // get filtered groups
 export const filterGroups = async (req, res) => {
   try {
-    console.log(req.body);
     const groups = await Group.find(req.body);
     res.send({ message: "get groups", groups });
   } catch (error) {
