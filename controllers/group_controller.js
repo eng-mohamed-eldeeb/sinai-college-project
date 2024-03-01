@@ -262,7 +262,9 @@ export const filterGroupsByYear = async (req, res) => {
 // get filtered groups
 export const filterGroups = async (req, res) => {
   try {
+    console.log(req.body);
     const groups = await Group.find(req.body);
+    console.log(groups);
     const updatedGroups = await Promise.all(
       groups.map(async (group) => {
         const user = await User.findById(group.requested_by.toHexString());
@@ -270,6 +272,9 @@ export const filterGroups = async (req, res) => {
         return { ...group._doc, requested_by: requestedByUser };
       })
     );
+    const user = await User.findById(req.user.userId);
+    console.log(user);
+    console.log(updatedGroups);
     res.send({ message: "get groups", updatedGroups });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to filter groups", error });
