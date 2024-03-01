@@ -274,7 +274,6 @@ export const filterGroups = async (req, res) => {
     // );
     const user = await User.findById(req.user.userId);
     console.log(user);
-    console.log(updatedGroups);
     res.send({ message: "get groups", groups });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to filter groups", error });
