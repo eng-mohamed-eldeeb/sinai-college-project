@@ -268,10 +268,7 @@ export const filterGroups = async (req, res) => {
     const updatedGroups = await Promise.all(
       groups.map(async (group) => {
         const user = await User.findById(group.requested_by.toHexString());
-        if (!user) {
-          return group;
-        }
-        const requestedByUser = user.name;
+        const requestedByUser = user.name ?? "unknown";
         return { ...group._doc, requested_by: requestedByUser };
       })
     );
