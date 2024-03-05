@@ -308,10 +308,8 @@ export const leaveGroup = async (req, res) => {
       return res.status(404).send({ ErrorMessage: "User not found" });
     }
 
-    const groupId = req.params.id;
-
-    // Check if the group exists
-    const group = await Group.findById(groupId);
+    // Find the group
+    const group = await Group.findById(req.params.id);
     if (!group) {
       return res.status(404).send({ ErrorMessage: "Group not found" });
     }
@@ -320,18 +318,19 @@ export const leaveGroup = async (req, res) => {
     if (!group.members.includes(userId)) {
       return res
         .status(400)
-        .send({ ErrorMessage: "You are not a member of this group" });
+        .send({ ErrorMessage: "User is not a member of the group" });
     }
 
-    // Filter out the user from the group.members array
-    group.members = group.members.filter(
-      (memberId) => memberId.toString() !== userId.toString()
+    // Update the group
+    const updatedGroup = await Group.findByIdAndUpdate(
+      req.params.id,
+      {
+        $pull: { members: userId },
+      },
+      { new: true }
     );
 
-    // Save the changes to the database
-    await group.save();
-
-    res.send({ message: "Successfully left the group" });
+    res.send({ message: "Successfully left the group", group: updatedGroup });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to leave group", error });
   }
