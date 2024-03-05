@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import StatusCodes from "http-status-codes";
 import jwt from "jsonwebtoken";
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
   try {
     const tokenHeader = req.headers.authorization;
     if (!tokenHeader || tokenHeader.startsWith("Bearer "))
@@ -13,6 +13,18 @@ const auth = (req, res, next) => {
     try {
       const payload = jwt.verify(token, process.env.JWT_SECRET);
       req.user = { userId: payload.userId };
+      // check if user has paid
+      const user = await User.findById(req.user.userId);
+      if (user.role !== "admin") {
+        if (
+          user.getExpirationDate > new Date() ||
+          user.package_type == "hold"
+        ) {
+          return res
+            .status(StatusCodes.UNAUTHORIZED)
+            .json({ message: "User has not paid" });
+        }
+      }
       next();
     } catch (err) {
       return res

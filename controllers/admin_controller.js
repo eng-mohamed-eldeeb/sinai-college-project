@@ -106,7 +106,7 @@ export const updateUserPackageType = async (req, res) => {
     const package_type = req.body.package_type;
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { package_type },
+      { package_type, package_date: Date.now() },
       { new: true }
     );
     if (!updatedUser) {
