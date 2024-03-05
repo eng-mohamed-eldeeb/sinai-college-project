@@ -29,12 +29,12 @@ const auth = async (req, res, next) => {
     } catch (err) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Invalid token" });
+        .json({ ErrorMessage: "Invalid token" });
     }
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: error });
+      .json({ ErrorMessage: error });
   }
 };
 
