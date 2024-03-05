@@ -22,7 +22,7 @@ const auth = async (req, res, next) => {
         ) {
           return res
             .status(StatusCodes.UNAUTHORIZED)
-            .json({ message: "User has not paid" });
+            .json({ ErrorMessage: "User has not paid" });
         }
       }
       next();
