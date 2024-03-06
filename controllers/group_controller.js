@@ -42,7 +42,7 @@ export const getUserGroups = async (req, res) => {
 
     res.send({
       message: "get user groups",
-      updatedGroups,
+      groups: updatedGroups,
       number_of_liked_groups: user.stared_groups.length,
     });
   } catch (error) {
@@ -256,7 +256,7 @@ export const getAllGroupForAdmin = async (req, res) => {
           return { ...group._doc, requested_by: requestedByUser.name };
         })
       );
-      res.send({ message: "get all groups", updatedGroups });
+      res.send({ message: "get all groups", groups: updatedGroups });
     }
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to get all groups", error });
@@ -303,7 +303,7 @@ export const filterGroups = async (req, res) => {
         return { ...group._doc, requested_by: requestedByUser.name };
       })
     );
-    res.send({ message: "get groups", updatedGroups });
+    res.send({ message: "get groups", groups: updatedGroups });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to filter groups" });
   }
