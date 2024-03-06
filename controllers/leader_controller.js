@@ -7,12 +7,16 @@ export const getCreateGroupRequests = async (req, res) => {
     const createGroupRequests = await Group.find({ status: "pending" });
     const userId = req.user.userId;
     const user = await User.findById(userId);
-    const updatedGroups = createGroupRequests.map((group) => {
-      const requestedByUser = user.name;
-      console.log(requestedByUser);
-      return { ...group._doc, requested_by: requestedByUser };
-    });
-    res.send({ message: "succss", grous: updatedGroups });
+    if (!user) {
+      return res.status(404).send({ ErrorMessage: "User not found" });
+    }
+    const updatedGroups = await Promise.all(
+      createGroupRequests.map(async (group) => {
+        var requestedByUser = await User.findById(group.requested_by);
+        return { ...group._doc, requested_by: requestedByUser.name };
+      })
+    );
+    res.send({ message: "success", groups: updatedGroups });
   } catch (error) {
     res
       .status(500)

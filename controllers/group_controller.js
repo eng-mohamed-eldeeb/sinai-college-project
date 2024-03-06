@@ -33,9 +33,16 @@ export const getUserGroups = async (req, res) => {
       return res.status(404).send({ ErrorMessage: "User has no groups" });
     }
 
+    const updatedGroups = await Promise.all(
+      groups.map(async (group) => {
+        var requestedByUser = await User.findById(group.requested_by);
+        return { ...group._doc, requested_by: requestedByUser.name };
+      })
+    );
+
     res.send({
       message: "get user groups",
-      groups,
+      updatedGroups,
       number_of_liked_groups: user.stared_groups.length,
     });
   } catch (error) {
@@ -243,7 +250,13 @@ export const getAllGroupForAdmin = async (req, res) => {
         .send({ ErrorMessage: "You are not authorized to get all groups" });
     } else {
       const groups = await Group.find();
-      res.send({ message: "get all groups", groups });
+      const updatedGroups = await Promise.all(
+        groups.map(async (group) => {
+          var requestedByUser = await User.findById(group.requested_by);
+          return { ...group._doc, requested_by: requestedByUser.name };
+        })
+      );
+      res.send({ message: "get all groups", updatedGroups });
     }
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to get all groups", error });
@@ -284,7 +297,13 @@ export const filterGroupsByYear = async (req, res) => {
 export const filterGroups = async (req, res) => {
   try {
     const groups = await Group.find(req.body);
-    res.send({ message: "get groups", groups });
+    const updatedGroups = await Promise.all(
+      groups.map(async (group) => {
+        var requestedByUser = await User.findById(group.requested_by);
+        return { ...group._doc, requested_by: requestedByUser.name };
+      })
+    );
+    res.send({ message: "get groups", updatedGroups });
   } catch (error) {
     res.status(500).send({ ErrorMessage: "Failed to filter groups" });
   }

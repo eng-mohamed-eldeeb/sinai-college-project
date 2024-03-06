@@ -16,9 +16,6 @@ const auth = async (req, res, next) => {
       // check if user has paid
       const user = await User.findById(req.user.userId);
       if (user.role !== "admin") {
-        console.log(
-          user.getExpirationDate() < new Date() || user.package_type == "hold"
-        );
         if (
           user.getExpirationDate() < new Date() ||
           (user.package_type == "hold" &&

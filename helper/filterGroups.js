@@ -1,6 +1,5 @@
 // add filtering helper by majore
 export const filterMajore = function (majore) {
-  console.log(majore);
   // 6
   if (majore === "physical therapy") return 6;
   // 5

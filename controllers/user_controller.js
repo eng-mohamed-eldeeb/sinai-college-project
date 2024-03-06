@@ -44,7 +44,6 @@ export const login = async (req, res) => {
       .status(StatusCodes.OK)
       .send({ message: "Logged in", token: "Barear " + token });
   } catch (error) {
-    console.log(error);
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .send({ ErrorMessage: "Server error" });

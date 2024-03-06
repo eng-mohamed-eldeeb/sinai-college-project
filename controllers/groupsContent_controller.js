@@ -9,7 +9,6 @@ const __dirname = dirname(__filename);
 // Route to delete a file
 export const deleteData = (req, res) => {
   try {
-    console.log(req.body);
     const { majore, subject_name, year, subject_group, file_type } = req.body;
     const filename = req.params.filename;
     const filepath = path.join(
@@ -75,12 +74,8 @@ export const uploadData = (req, res) => {
       }
 
       ffmpeg(filepath)
-        .on("filenames", function (filenames) {
-          console.log("Will generate " + filenames.join(", "));
-        })
-        .on("end", function () {
-          console.log("Screenshots taken");
-        })
+        .on("filenames", function (filenames) {})
+        .on("end", function () {})
         .on("error", function (err) {
           console.error(err);
           return res.status(500).json({
