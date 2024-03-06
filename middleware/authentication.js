@@ -19,9 +19,9 @@ const auth = async (req, res, next) => {
         if (
           (user.getExpirationDate > new Date() ||
             user.package_type == "hold") &&
-          (req.url !== "/logout" || req.url !== "/deleteUser")
+          req.url !== "/logout" &&
+          req.url !== "/deleteUser"
         ) {
-          console.log(req.url);
           return res
             .status(StatusCodes.UNAUTHORIZED)
             .json({ ErrorMessage: "User has not paid" });
