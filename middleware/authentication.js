@@ -15,12 +15,11 @@ const auth = async (req, res, next) => {
       req.user = { userId: payload.userId };
       // check if user has paid
       const user = await User.findById(req.user.userId);
-      if (user.role !== "admin") {
         if (
-          (user.getExpirationDate > new Date() ||
-            user.package_type == "hold") &&
-          req.url !== "/logout" &&
-          req.url !== "/deleteUser"
+          user.getExpirationDate() < new Date() ||
+          (user.package_type == "hold" &&
+            req.url !== "/logout" &&
+            req.url !== "/deleteUser")
         ) {
           return res
             .status(StatusCodes.UNAUTHORIZED)

@@ -9,6 +9,7 @@ export const getCreateGroupRequests = async (req, res) => {
     const user = await User.findById(userId);
     const updatedGroups = createGroupRequests.map((group) => {
       const requestedByUser = user.name;
+      console.log(requestedByUser);
       return { ...group._doc, requested_by: requestedByUser };
     });
     res.send({ message: "succss", grous: updatedGroups });
