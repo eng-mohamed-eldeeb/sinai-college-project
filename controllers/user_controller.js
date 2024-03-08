@@ -60,7 +60,6 @@ export const register = async (req, res) => {
     }
     try {
       const user = await User.create({ ...req.body });
-      console.log(user.device_id);
       // later I will send a confirmation email
       res.status(StatusCodes.CREATED).send({
         success: "User created",
@@ -92,7 +91,6 @@ export const logout = async (req, res) => {
     }
     user.device_id = "";
     user.logged_in = false;
-    console.log(user.device_id, user.logged_in);
     await user.save();
     res.status(StatusCodes.OK).send({ message: "Logged out" });
   } catch (error) {
