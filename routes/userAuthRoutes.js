@@ -11,6 +11,7 @@ import {
   logout,
   resetPassword,
   getRoleAndExpiration,
+  checkLogin,
 } from "../controllers/user_controller.js";
 
 // create the user
@@ -23,6 +24,8 @@ router
   .delete("/deleteUser", auth, deleteUser)
   .delete("/logout", auth, logout);
 router.put("/resetPassword", auth, resetPassword);
-router.get("/getRoleAndExpiration", auth, getRoleAndExpiration);
+router
+  .get("/getRoleAndExpiration", auth, getRoleAndExpiration)
+  .get("/checkLogin", auth, checkLogin);
 
 export default router;

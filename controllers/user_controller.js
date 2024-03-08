@@ -17,6 +17,11 @@ export const login = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .send({ ErrorMessage: "Please provide email and password" });
     }
+    if (req.body.device_id === undefined) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ ErrorMessage: "Please provide device_id" });
+    }
     const user = await User.findOne({
       email,
     });
@@ -30,15 +35,9 @@ export const login = async (req, res) => {
         .status(StatusCodes.BAD_REQUEST)
         .send({ ErrorMessage: "Invalid credentials" });
     }
-    if (user.number_of_login == 0 || user.role === "admin") {
-      user.number_of_login += 1;
-      await user.save();
-    } else {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .send({ ErrorMessage: "User already logged in" });
-    }
-
+    user.device_id = req.body.device_id;
+    user.logged_in = true;
+    await user.save();
     const token = user.createJWT();
     res
       .status(StatusCodes.OK)
@@ -61,6 +60,7 @@ export const register = async (req, res) => {
     }
     try {
       const user = await User.create({ ...req.body });
+      console.log(user.device_id);
       // later I will send a confirmation email
       res.status(StatusCodes.CREATED).send({
         success: "User created",
@@ -90,19 +90,15 @@ export const logout = async (req, res) => {
         .status(StatusCodes.NOT_FOUND)
         .send({ ErrorMessage: "User not found" });
     }
-    if (user.number_of_login === 1) {
-      user.number_of_login -= 1;
-      await user.save();
-      res.status(StatusCodes.OK).send({ message: "Logged out" });
-    } else {
-      res
-        .status(StatusCodes.BAD_REQUEST)
-        .send({ ErrorMessage: "User already logged out" });
-    }
+    user.device_id = "";
+    user.logged_in = false;
+    console.log(user.device_id, user.logged_in);
+    await user.save();
+    res.status(StatusCodes.OK).send({ message: "Logged out" });
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .send({ ErrorMessage: "Server error" });
+      .send({ ErrorMessage: "Server error" }, error);
   }
 };
 
@@ -197,4 +193,22 @@ export const getRoleAndExpiration = async (req, res) => {
       expiration_date: user.getExpirationDate(),
     });
   } catch {}
+};
+
+// check login
+export const checkLogin = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ ErrorMessage: "User not found" });
+    }
+    return res.status(StatusCodes.OK).send({ is_logged: user.logged_in });
+  } catch (error) {
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ ErrorMessage: "Server error" });
+  }
 };

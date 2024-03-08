@@ -13,19 +13,22 @@ const auth = async (req, res, next) => {
     try {
       const payload = jwt.verify(token, process.env.JWT_SECRET);
       req.user = { userId: payload.userId };
-      // check if user has paid
       const user = await User.findById(req.user.userId);
-      if (user.role !== "admin") {
-        if (
-          user.getExpirationDate() < new Date() ||
-          (user.package_type == "hold" &&
-            req.url !== "/logout" &&
-            req.url !== "/deleteUser")
-        ) {
-          return res
-            .status(StatusCodes.UNAUTHORIZED)
-            .json({ ErrorMessage: "User has not paid" });
-        }
+      if (
+        req.url !== "/delete_user" &&
+        req.url !== "/logout" &&
+        user.role !== "admin" &&
+        user.package_type === "hold" &&
+        user.getExpirationDate() < new Date()
+      ) {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ ErrorMessage: "This email is used in another device" });
+      }
+      if (user.device_id !== payload.device_id || user.role !== "admin") {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ ErrorMessage: "Invalid device" });
       }
       next();
     } catch (err) {

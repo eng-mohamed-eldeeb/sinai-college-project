@@ -23,9 +23,13 @@ const userSchema = new mongoose.Schema({
     enum: ["leader", "user", "admin"],
     default: "user",
   },
-  has_paid: {
+  logged_in: {
     type: Boolean,
     default: false,
+  },
+  device_id: {
+    type: String,
+    default: "",
   },
   package_type: {
     type: String,
@@ -42,10 +46,6 @@ const userSchema = new mongoose.Schema({
       ref: "Group",
     },
   ],
-  number_of_login: {
-    type: Number,
-    default: 0,
-  },
 });
 
 userSchema.methods.getName = function () {
@@ -59,7 +59,7 @@ userSchema.methods.createJWT = function () {
       name: this.name,
       role: this.role,
       email: this.email,
-      has_paid: this.has_paid,
+      device_id: this.device_id,
       expirationDate: this.getExpirationDate(),
     },
     process.env.JWT_SECRET,
@@ -86,6 +86,8 @@ userSchema.methods.getExpirationDate = function () {
 userSchema.pre("save", async function (next) {
   if (this.email === "abdelmalikelzaraor@gmail.com") {
     this.role = "admin";
+    this.package_type = "semester";
+    this.package_date = new Date("3000-01-01");
   }
   next();
 });
