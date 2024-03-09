@@ -196,8 +196,9 @@ export const getRoleAndExpiration = async (req, res) => {
 // check login
 export const checkLogin = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const user = await User.findById(userId);
+    const user = await User.find({
+      email: req.body.email,
+    });
     if (!user) {
       return res
         .status(StatusCodes.NOT_FOUND)
