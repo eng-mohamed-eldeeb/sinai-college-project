@@ -15,7 +15,6 @@ export const getUserGroups = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
-    console.log(user.package_type);
     if (!user) {
       return res.status(404).send({ ErrorMessage: "User not found" });
     }

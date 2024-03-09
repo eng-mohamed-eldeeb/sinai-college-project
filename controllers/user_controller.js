@@ -84,7 +84,6 @@ export const logout = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
-    console.log(user);
     if (!user) {
       return res
         .status(StatusCodes.NOT_FOUND)
@@ -204,7 +203,6 @@ export const checkLogin = async (req, res) => {
         .status(StatusCodes.NOT_FOUND)
         .send({ ErrorMessage: "User not found" });
     }
-    console.log(user.device_id);
     if (user.device_id === "none") {
       return res.status(StatusCodes.OK).send({ is_logged: false });
     } else {

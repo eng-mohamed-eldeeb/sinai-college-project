@@ -27,7 +27,6 @@ const auth = async (req, res, next) => {
           }
         }
       }
-      console.log(user.device_id !== payload.device_id);
       if (user.role !== "admin") {
         if (req.url !== "/logout") {
           if (user.device_id !== payload.device_id) {
