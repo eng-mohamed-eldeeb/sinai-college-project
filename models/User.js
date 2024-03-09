@@ -23,13 +23,9 @@ const userSchema = new mongoose.Schema({
     enum: ["leader", "user", "admin"],
     default: "user",
   },
-  logged_in: {
-    type: Boolean,
-    default: false,
-  },
   device_id: {
     type: String,
-    default: "",
+    default: "none",
   },
   package_type: {
     type: String,
@@ -47,10 +43,6 @@ const userSchema = new mongoose.Schema({
     },
   ],
 });
-
-userSchema.methods.getName = function () {
-  return this.name;
-};
 
 userSchema.methods.createJWT = function () {
   return jwt.sign(

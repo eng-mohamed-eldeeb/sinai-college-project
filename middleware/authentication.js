@@ -14,21 +14,28 @@ const auth = async (req, res, next) => {
       const payload = jwt.verify(token, process.env.JWT_SECRET);
       req.user = { userId: payload.userId };
       const user = await User.findById(req.user.userId);
-      if (
-        req.url !== "/delete_user" &&
-        req.url !== "/logout" &&
-        user.role !== "admin" &&
-        user.package_type === "hold" &&
-        user.getExpirationDate() < new Date()
-      ) {
-        return res
-          .status(StatusCodes.UNAUTHORIZED)
-          .json({ ErrorMessage: "This email is used in another device" });
+      if (req.url !== "/delete_user") {
+        if (req.url !== "/logout") {
+          if (user.role !== "admin") {
+            if (user.package_type === "hold") {
+              if (user.package_date < new Date()) {
+                return res
+                  .status(StatusCodes.UNAUTHORIZED)
+                  .json({ ErrorMessage: "Package expired" });
+              }
+            }
+          }
+        }
       }
-      if (user.device_id !== payload.device_id || user.role !== "admin") {
-        return res
-          .status(StatusCodes.UNAUTHORIZED)
-          .json({ ErrorMessage: "Invalid device" });
+      console.log(user.device_id !== payload.device_id);
+      if (user.role !== "admin") {
+        if (req.url !== "/logout") {
+          if (user.device_id !== payload.device_id) {
+            return res
+              .status(StatusCodes.UNAUTHORIZED)
+              .json({ ErrorMessage: "This email is used in another device" });
+          }
+        }
       }
       next();
     } catch (err) {

@@ -84,13 +84,13 @@ export const logout = async (req, res) => {
   try {
     const userId = req.user.userId;
     const user = await User.findById(userId);
+    console.log(user);
     if (!user) {
       return res
         .status(StatusCodes.NOT_FOUND)
         .send({ ErrorMessage: "User not found" });
     }
-    user.device_id = "";
-    user.logged_in = false;
+    user.device_id = "none";
     await user.save();
     res.status(StatusCodes.OK).send({ message: "Logged out" });
   } catch (error) {
@@ -204,8 +204,14 @@ export const checkLogin = async (req, res) => {
         .status(StatusCodes.NOT_FOUND)
         .send({ ErrorMessage: "User not found" });
     }
-    return res.status(StatusCodes.OK).send({ is_logged: user.logged_in });
+    console.log(user.device_id);
+    if (user.device_id === "none") {
+      return res.status(StatusCodes.OK).send({ is_logged: false });
+    } else {
+      return res.status(StatusCodes.OK).send({ is_logged: true });
+    }
   } catch (error) {
+    console.log(error);
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .send({ ErrorMessage: "Server error" });
