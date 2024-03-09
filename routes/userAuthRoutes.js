@@ -26,6 +26,6 @@ router
 router.put("/resetPassword", auth, resetPassword);
 router
   .get("/getRoleAndExpiration", auth, getRoleAndExpiration)
-  .get("/checkLogin", auth, checkLogin);
+  .get("/checkLogin", checkLogin);
 
 export default router;
