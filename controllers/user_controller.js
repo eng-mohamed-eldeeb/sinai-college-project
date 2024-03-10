@@ -203,7 +203,7 @@ export const checkLogin = async (req, res) => {
         .status(StatusCodes.NOT_FOUND)
         .send({ ErrorMessage: "User not found" });
     }
-    if (user.device_id === "none") {
+    if (user.device_id === "none" || user.role === "admin") {
       return res.status(StatusCodes.OK).send({ is_logged: false });
     } else {
       return res.status(StatusCodes.OK).send({ is_logged: true });
