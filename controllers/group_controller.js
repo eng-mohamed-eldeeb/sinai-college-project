@@ -259,6 +259,7 @@ export const getAllGroupForAdmin = async (req, res) => {
       res.send({ message: "get all groups", groups: updatedGroups });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).send({ ErrorMessage: "Failed to get all groups", error });
   }
 };
