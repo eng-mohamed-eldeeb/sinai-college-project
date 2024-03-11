@@ -253,9 +253,11 @@ export const getAllGroupForAdmin = async (req, res) => {
       const updatedGroups = await Promise.all(
         groups.map(async (group) => {
           var requestedByUser = await User.findById(group.requested_by);
-          console.log(group);
-          console.log(group.requested_by);
-          console.log(requestedByUser);
+          console.log("the group", "====================", group);
+          console.log("==================================");
+          console.log("group requested by: ", group.requested_by);
+          console.log("==================================");
+          console.log(" the user: ", requestedByUser);
           return { ...group._doc, requested_by: requestedByUser.name };
         })
       );
