@@ -256,7 +256,9 @@ export const getAllGroupForAdmin = async (req, res) => {
           console.log(requestedByUser._id);
           return {
             ...group._doc,
-            requested_by: requestedByUser.name || "deleted",
+            requested_by: requestedByUser
+              ? requestedByUser.name
+              : "deleted user",
           };
         })
       );
