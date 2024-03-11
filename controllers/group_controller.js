@@ -258,6 +258,8 @@ export const getAllGroupForAdmin = async (req, res) => {
           console.log("group requested by: ", group.requested_by);
           console.log("==================================");
           console.log(" the user: ", requestedByUser);
+          console.log("==================================");
+          console.log(requestedByUser.name);
           return { ...group._doc, requested_by: requestedByUser.name };
         })
       );
