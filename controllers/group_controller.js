@@ -250,17 +250,16 @@ export const getAllGroupForAdmin = async (req, res) => {
         .send({ ErrorMessage: "You are not authorized to get all groups" });
     } else {
       const groups = await Group.find();
-      if (groups.length == 0) {
-        res.send({ message: "get all groups", groups: [] });
-      } else {
-        const updatedGroups = await Promise.all(
-          groups.map(async (group) => {
-            var requestedByUser = await User.findById(group.requested_by);
-            return { ...group._doc, requested_by: requestedByUser.name };
-          })
-        );
-        res.send({ message: "get all groups", groups: updatedGroups });
-      }
+      const updatedGroups = await Promise.all(
+        groups.map(async (group) => {
+          var requestedByUser = await User.findById(group.requested_by);
+          console.log(group);
+          console.log(group.requested_by);
+          console.log(requestedByUser);
+          return { ...group._doc, requested_by: requestedByUser.name };
+        })
+      );
+      res.send({ message: "get all groups", groups: updatedGroups });
     }
   } catch (error) {
     console.log(error);
