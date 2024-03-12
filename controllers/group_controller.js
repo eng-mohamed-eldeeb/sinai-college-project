@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import Group from "../models/Group.js";
 import { filterMajore } from "../helper/filterGroups.js";
+import getName from "../helper/getUserName.js";
 
 export const deleteAllGroups = async (req, res) => {
   try {
@@ -35,8 +36,10 @@ export const getUserGroups = async (req, res) => {
 
     const updatedGroups = await Promise.all(
       groups.map(async (group) => {
-        var requestedByUser = await User.findById(group.requested_by);
-        return { ...group._doc, requested_by: requestedByUser.name };
+        return {
+          ...group._doc,
+          requested_by: await getName(group.requested_by),
+        };
       })
     );
 
@@ -252,13 +255,9 @@ export const getAllGroupForAdmin = async (req, res) => {
       const groups = await Group.find();
       const updatedGroups = await Promise.all(
         groups.map(async (group) => {
-          var requestedByUser = await User.findById(group.requested_by);
-          console.log(requestedByUser._id);
           return {
             ...group._doc,
-            requested_by: requestedByUser
-              ? requestedByUser.name
-              : "deleted user",
+            requested_by: await getName(group.requested_by),
           };
         })
       );
@@ -306,8 +305,10 @@ export const filterGroups = async (req, res) => {
     const groups = await Group.find(req.body);
     const updatedGroups = await Promise.all(
       groups.map(async (group) => {
-        var requestedByUser = await User.findById(group.requested_by);
-        return { ...group._doc, requested_by: requestedByUser.name };
+        return {
+          ...group._doc,
+          requested_by: await getName(group.requested_by),
+        };
       })
     );
     res.send({ message: "get groups", groups: updatedGroups });
