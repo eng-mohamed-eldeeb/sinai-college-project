@@ -139,7 +139,6 @@ export const getRevenue = async (req, res) => {
       if (user.package_type == "semester") {
         let date_now = new Date();
         date_now.setMonth(date_now.getMonth() + 1);
-        console.log(user.package_date);
         if (user.package_date < date_now) {
           new_semster_student += 1;
           revenue += 100;
