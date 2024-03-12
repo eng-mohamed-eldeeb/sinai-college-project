@@ -1,5 +1,6 @@
 import Group from "../models/Group.js";
 import User from "../models/User.js";
+import getName from "../helper/getUserName.js";
 
 // get create group requests placeholder
 export const getCreateGroupRequests = async (req, res) => {
@@ -12,13 +13,14 @@ export const getCreateGroupRequests = async (req, res) => {
     }
     const updatedGroups = await Promise.all(
       createGroupRequests.map(async (group) => {
-        var requestedByUser = await User.findById(group.requested_by);
-        return { ...group._doc, requested_by: requestedByUser.name };
+        return {
+          ...group._doc,
+          requested_by: await getName(group.requested_by),
+        };
       })
     );
     res.send({ message: "success", groups: updatedGroups });
   } catch (error) {
-    console.log(error);
     res
       .status(500)
       .send({ ErrorMessage: "Failed to get create group requests", error });
