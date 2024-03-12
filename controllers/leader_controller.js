@@ -18,6 +18,7 @@ export const getCreateGroupRequests = async (req, res) => {
     );
     res.send({ message: "success", groups: updatedGroups });
   } catch (error) {
+    console.log(error);
     res
       .status(500)
       .send({ ErrorMessage: "Failed to get create group requests", error });
