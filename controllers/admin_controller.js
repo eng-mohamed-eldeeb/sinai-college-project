@@ -119,3 +119,50 @@ export const updateUserPackageType = async (req, res) => {
       .send({ ErrorMessage: "Failed to update user package type", error });
   }
 };
+
+// get the revenue
+export const getRevenue = async (req, res) => {
+  try {
+    let user = await User.findById(req.user.userId);
+    if (user.role != "admin") {
+      return res
+        .status(403)
+        .send({ ErrorMessage: "You are not authorized to delete user" });
+    }
+    let users = await User.find({});
+    let new_semster_student = 0;
+    let old_semester_student = 0;
+    let monthely_student = 0;
+    let revenue = 0;
+
+    users.forEach((user) => {
+      if (user.package_type == "semester") {
+        let date_now = new Date();
+        date_now.setMonth(date_now.getMonth() + 1);
+        console.log(user.package_date);
+        if (user.package_date < date_now) {
+          new_semster_student += 1;
+          revenue += 100;
+        } else {
+          old_semester_student += 1;
+        }
+      } else if (user.package_type == "month") {
+        monthely_student += 1;
+        revenue += 30;
+      }
+    });
+    const development_revenue = (revenue / 5) * 3;
+    const mangment_revenue = (revenue / 5) * 2;
+    res.status(200).send({
+      new_semster_student,
+      old_semester_student,
+      monthely_student,
+      total_revenue: revenue,
+      development_revenue,
+      mangment_revenue,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ ErrorMessage: "Failed to get revenue", error });
+  }
+};
