@@ -18,7 +18,8 @@ import {
 router
   .post("/", register)
   .post("/login", login)
-  .post("/groups/:id/starGroup", auth, starGroup);
+  .post("/groups/:id/starGroup", auth, starGroup)
+  .post("/checkLogin", checkLogin);
 router
   .delete("/deleteAllUsers", deleteAllUsers)
   .delete("/deleteUser", auth, deleteUser)
